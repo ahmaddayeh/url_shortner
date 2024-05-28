@@ -6,13 +6,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const port = process.env.port;
+const port = process.env.PORT;
+
+console.log(process.env.DB_USER);
 
 app.use(bodyParser.json());
 
 const dbConfig = {
   host: process.env.DB_HOST,
-  username: process.env.DB_USERNAME,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 };
@@ -26,13 +28,14 @@ app.post("/shorten", async (req, res) => {
   }
 
   try {
-    const query = "Insert into urls (original_url, short-name) VALUES (?,?)";
+    const query = "Insert into urls (original_url, short_name) VALUES (?,?)";
     await db.execute(query, [original_url, short_name]);
-    res.status(200).send({ message: `l.lb.ivao.aero/${shortname}` });
+    res.status(200).send({ message: `l.lb.ivao.aero/${short_name}` });
   } catch (err) {
     if (err.code == "ER_DUP_ENTRY") {
       res.status(400).send({ message: `shortname already exists` });
     } else {
+      console.log(err);
       res.status(400).send({ message: `Error inserting to Database` });
     }
   }
